@@ -20,7 +20,7 @@
       </div>
       <nav class="tabs" role="tablist">
         <button role="tab" aria-selected="true" data-tab="coleccion">Mi colección</button>
-        <button role="tab" aria-selected="false" data-tab="pinterest">Tablero de Pinterest</button>
+        <button role="tab" aria-selected="false" data-tab="pinterest">Tablero en vivo</button>
       </nav>
     </div>
   </header>
@@ -30,7 +30,7 @@
       <div class="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="q" type="search" autocomplete="off" spellcheck="false"
-               placeholder="Describe la situación: “perdí por mala suerte”, “esperando”, “plan malvado”…"
+               placeholder="Busca en tus memes y tu Pinterest: “perdí por mala suerte”, “esperando”, “plan malvado”…"
                aria-label="Buscar memes">
         <kbd>/</kbd>
       </div>
@@ -39,11 +39,18 @@
 
       <div class="filters">
         <div class="chips" id="cats" aria-label="Categorías"></div>
+        <div class="selects">
+        <select id="source" aria-label="Origen">
+          <option value="all">Todo</option>
+          <option value="local">Mi colección</option>
+          <option value="pin">Mi Pinterest</option>
+        </select>
         <select id="sort" aria-label="Orden">
           <option value="rel">Más relevantes</option>
           <option value="uses">Más usados</option>
           <option value="az">A–Z</option>
         </select>
+        </div>
       </div>
 
       <p class="status" id="status" aria-live="polite"></p>
@@ -84,6 +91,8 @@
         <div class="v-actions">
           <button class="btn primary" id="v-copy">Copiar imagen</button>
           <a class="btn" id="v-dl" download>Descargar</a>
+          <a class="btn primary" id="v-pin" target="_blank" rel="noopener" hidden>Abrir en Pinterest</a>
+          <a class="btn" id="v-img" target="_blank" rel="noopener" referrerpolicy="no-referrer" hidden>Ver imagen grande</a>
           <button class="btn" id="v-fav">☆ Favorito</button>
         </div>
         <p class="v-file" id="v-file"></p>

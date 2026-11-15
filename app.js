@@ -5,7 +5,10 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
 
-  const CATS = ["Todos", "★ Favoritos", "Reacciones", "Frases", "Ash y anime", "Iconos", "Items Pokémon", "Sprites y UI", "GIF y video"];
+  const BOARD = "guerra9788/memes";
+  const PIN_CDN = "https://i.pinimg.com";
+  const CATS = ["Todos", "★ Favoritos", "Reacciones", "Frases", "Emojis y stickers", "Ash y anime", "Iconos",
+    "Items Pokémon", "Sprites y UI", "Pantalla verde", "GIF y video"];
   const MOODS = [
     ["Gané", "gane victoria"], ["Perdí", "perdi derrota"], ["Mala suerte", "mala suerte"],
     ["Sorpresa", "sorpresa"], ["Esperando", "esperando"], ["Plan malvado", "plan malvado"],
@@ -14,15 +17,28 @@
     ["No", "no rechazo"], ["Sí", "si aprobado"], ["Aura", "aura cool"], ["Shiny", "shiny"], ["Amenaza", "amenaza"],
   ];
 
-  let memes = [];
+  let items = [];
   let view = [];
   let cat = "Todos";
   let favs = new Set(store.get("favs", []));
   let uses = store.get("uses", {});
   let current = -1;
 
-  const url = (dir, f) => `${dir}/${encodeURIComponent(f)}`;
-  const isFav = (m) => favs.has(m.file);
+  const local = (dir, f) => `${dir}/${encodeURIComponent(f)}`;
+  const isFav = (m) => favs.has(m.key);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // Un mismo formato para memes propios y pines.
+  function fromLocal(m) {
+    return { ...m, key: m.file, src: "local", thumbUrl: local("thumbs", m.thumb), fullUrl: local("memes", m.file),
+      animated: m.type !== "imagen" };
+  }
+  function fromPin(p, isNew = false) {
+    return { key: "pin:" + p.id, id: p.id, src: "pin", isNew, file: p.title, title: p.title, desc: p.desc || "",
+      cat: p.cat, tags: p.tags, type: p.video ? "video" : "imagen", animated: !!p.video,
+      thumbUrl: `${PIN_CDN}/236x/${p.img}`, fullUrl: `${PIN_CDN}/736x/${p.img}`,
+      pinUrl: `https://co.pinterest.com/pin/${p.id}/` };
+  }
 
   // ---------- UI estática ----------
   $("#cats").innerHTML = CATS.map((c) => `<button class="chip" data-cat="${c}">${c}</button>`).join("");
@@ -32,38 +48,44 @@
   // ---------- render ----------
   function render() {
     const q = $("#q").value.trim();
-    let res = MemeSearch.search(memes, q);
+    const source = $("#source").value;
+    let res = MemeSearch.search(items, q);
+    if (source !== "all") res = res.filter((r) => r.m.src === source);
     if (cat === "★ Favoritos") res = res.filter((r) => isFav(r.m));
-    else if (cat === "GIF y video") res = res.filter((r) => r.m.type !== "imagen");
+    else if (cat === "GIF y video") res = res.filter((r) => r.m.animated);
     else if (cat !== "Todos") res = res.filter((r) => r.m.cat === cat);
 
     const sort = $("#sort").value;
-    if (sort === "uses") res.sort((a, b) => (uses[b.m.file] || 0) - (uses[a.m.file] || 0) || b.score - a.score);
+    if (sort === "uses") res.sort((a, b) => (uses[b.m.key] || 0) - (uses[a.m.key] || 0) || b.score - a.score);
     else if (sort === "az") res.sort((a, b) => a.m.title.localeCompare(b.m.title, "es"));
     else if (!q) {
-      // sin búsqueda: favoritos y más usados primero, luego memes antes que assets
-      const rank = (m) => { const i = CATS.indexOf(m.cat); return i < 0 ? 99 : i; };
-      res.sort((a, b) => (isFav(b.m) - isFav(a.m)) || (uses[b.m.file] || 0) - (uses[a.m.file] || 0) || rank(a.m) - rank(b.m));
+      // sin búsqueda: pines nuevos, favoritos y más usados primero; luego tus memes antes que los assets
+      const rank = (m) => { const i = CATS.indexOf(m.cat); return (m.src === "pin" ? 50 : 0) + (i < 0 ? 40 : i); };
+      res.sort((a, b) => (b.m.isNew - a.m.isNew) || (isFav(b.m) - isFav(a.m)) ||
+        (uses[b.m.key] || 0) - (uses[a.m.key] || 0) || rank(a.m) - rank(b.m));
     }
 
     view = res.map((r) => r.m);
     $("#grid").innerHTML = view.map((m, i) => `
       <figure class="card${isFav(m) ? " fav" : ""}" data-i="${i}">
         <button class="open" data-i="${i}" aria-label="Ver ${esc(m.title)}">
-          <img src="${url("thumbs", m.thumb)}" alt="${esc(m.title)}" loading="lazy" decoding="async">
-          ${m.type !== "imagen" ? `<span class="badge">${m.type === "gif" ? "GIF" : "VIDEO"}</span>` : ""}
+          <img src="${m.thumbUrl}" alt="${esc(m.title)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+          ${m.animated ? `<span class="badge">${m.type === "gif" ? "GIF" : "VIDEO"}</span>` : ""}
+          ${m.src === "pin" ? `<span class="badge pin${m.isNew ? " new" : ""}">${m.isNew ? "NUEVO" : "P"}</span>` : ""}
         </button>
         <figcaption>${esc(m.title)}</figcaption>
-          <span class="acts">
-            <button class="star" data-act="fav" data-i="${i}" aria-label="Favorito" title="Favorito">${isFav(m) ? "★" : "☆"}</button>
-            ${m.type === "video" ? "" : `<button data-act="copy" data-i="${i}" title="Copiar imagen" aria-label="Copiar">⧉</button>`}
-            <a href="${url("memes", m.file)}" download data-act="dl" data-i="${i}" title="Descargar" aria-label="Descargar">↓</a>
-          </span>
+        <span class="acts">
+          <button class="star" data-act="fav" data-i="${i}" aria-label="Favorito" title="Favorito">${isFav(m) ? "★" : "☆"}</button>
+          ${m.src === "pin"
+            ? `<a href="${m.pinUrl}" target="_blank" rel="noopener" data-act="dl" data-i="${i}" title="Abrir en Pinterest" aria-label="Abrir en Pinterest">↗</a>`
+            : `${m.type === "video" ? "" : `<button data-act="copy" data-i="${i}" title="Copiar imagen" aria-label="Copiar">⧉</button>`}
+               <a href="${m.fullUrl}" download data-act="dl" data-i="${i}" title="Descargar" aria-label="Descargar">↓</a>`}
+        </span>
       </figure>`).join("");
 
     const n = view.length;
     $("#status").textContent = q
-      ? (n ? `${n} resultado${n === 1 ? "" : "s"} para “${q}”` : `Nada en tu colección para “${q}”.`)
+      ? (n ? `${n} resultado${n === 1 ? "" : "s"} para “${q}”` : `Nada en tu colección ni en tu tablero para “${q}”.`)
       : (cat === "★ Favoritos" && !n ? "Aún no tienes favoritos: toca ☆ en un meme." : "");
     $("#fallback").classList.toggle("show", !!q);
     if (q) {
@@ -77,10 +99,9 @@
     const params = new URLSearchParams();
     if (q) params.set("q", q);
     if (cat !== "Todos") params.set("cat", cat);
+    if (source !== "all") params.set("src", source);
     history.replaceState(null, "", params.toString() ? `?${params}` : location.pathname);
   }
-
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   // ---------- acciones ----------
   function toast(msg) {
@@ -88,23 +109,23 @@
     t.textContent = msg;
     t.classList.add("show");
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+    toast._t = setTimeout(() => t.classList.remove("show"), 2400);
   }
 
   function used(m) {
-    uses[m.file] = (uses[m.file] || 0) + 1;
+    uses[m.key] = (uses[m.key] || 0) + 1;
     store.set("uses", uses);
   }
 
   function toggleFav(m) {
-    favs.has(m.file) ? favs.delete(m.file) : favs.add(m.file);
+    favs.has(m.key) ? favs.delete(m.key) : favs.add(m.key);
     store.set("favs", [...favs]);
   }
 
   async function copy(m) {
     // El blob va como promesa para que el permiso del clic no se pierda (Safari/Chrome).
     const pngPromise = (async () => {
-      const blob = await fetch(url("memes", m.file)).then((r) => r.blob());
+      const blob = await fetch(m.fullUrl).then((r) => r.blob());
       if (blob.type === "image/png") return blob;
       const bmp = await createImageBitmap(blob);
       const c = document.createElement("canvas");
@@ -127,20 +148,29 @@
     current = i;
     const m = view[i];
     if (!m) return;
-    const src = url("memes", m.file);
-    $("#v-media").innerHTML = m.type === "video"
-      ? `<video src="${src}" controls autoplay loop playsinline></video>`
-      : `<img src="${src}" alt="${esc(m.title)}">`;
-    $("#v-cat").textContent = m.cat;
+    const pin = m.src === "pin";
+    $("#v-media").innerHTML = m.type === "video" && !pin
+      ? `<video src="${m.fullUrl}" controls autoplay loop playsinline></video>`
+      : `<img src="${m.fullUrl}" alt="${esc(m.title)}" referrerpolicy="no-referrer">`;
+    $("#v-cat").textContent = pin ? `Pinterest · ${m.cat}` : m.cat;
     $("#v-title").textContent = m.title;
-    $("#v-desc").textContent = m.desc;
+    $("#v-desc").textContent = pin && m.type === "video" ? "Es un video: ábrelo en Pinterest para verlo." : m.desc;
     $("#v-tags").innerHTML = (m.tags || []).map((t) => `<button class="tag" data-q="${esc(t)}">${esc(t)}</button>`).join("");
-    $("#v-dl").href = src;
-    $("#v-dl").setAttribute("download", m.file);
-    $("#v-copy").hidden = m.type === "video";
+    $("#v-copy").hidden = pin || m.type === "video";
+    $("#v-dl").hidden = pin;
+    $("#v-pin").hidden = !pin;
+    $("#v-img").hidden = !pin;
+    if (pin) {
+      $("#v-pin").href = m.pinUrl;
+      $("#v-img").href = m.fullUrl;
+    } else {
+      $("#v-dl").href = m.fullUrl;
+      $("#v-dl").setAttribute("download", m.file);
+    }
     $("#v-fav").textContent = isFav(m) ? "★ Favorito" : "☆ Favorito";
     $("#v-fav").classList.toggle("on", isFav(m));
-    $("#v-file").textContent = m.file + (uses[m.file] ? ` · usado ${uses[m.file]} ${uses[m.file] === 1 ? "vez" : "veces"}` : "");
+    const u = uses[m.key];
+    $("#v-file").textContent = (pin ? `pin ${m.id}` : m.file) + (u ? ` · usado ${u} ${u === 1 ? "vez" : "veces"}` : "");
     if (!dlg.open) dlg.showModal();
   }
   const step = (d) => view.length && openViewer((current + d + view.length) % view.length);
@@ -150,6 +180,8 @@
   $("#v-next").onclick = () => step(1);
   $("#v-copy").onclick = () => copy(view[current]);
   $("#v-dl").onclick = () => used(view[current]);
+  $("#v-pin").onclick = () => used(view[current]);
+  $("#v-img").onclick = () => used(view[current]);
   $("#v-fav").onclick = () => { toggleFav(view[current]); openViewer(current); render(); };
   $("#v-tags").onclick = (e) => {
     const b = e.target.closest(".tag");
@@ -184,6 +216,7 @@
   let tmr;
   $("#q").addEventListener("input", () => { clearTimeout(tmr); tmr = setTimeout(render, 120); });
   $("#sort").addEventListener("change", render);
+  $("#source").addEventListener("change", render);
   $("#cats").addEventListener("click", (e) => {
     const b = e.target.closest(".chip");
     if (b) { cat = b.dataset.cat; render(); }
@@ -202,38 +235,68 @@
     if (e.key === "/" && document.activeElement !== $("#q")) { e.preventDefault(); $("#q").focus(); $("#q").select(); }
   });
 
-  // ---------- pestañas + Pinterest ----------
+  // ---------- pestañas + tablero embebido ----------
   function showTab(name) {
     document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === name));
     $("#coleccion").hidden = name !== "coleccion";
     $("#pinterest").hidden = name !== "pinterest";
-    if (name === "pinterest") loadPinterest();
+    if (name === "pinterest") loadBoardWidget();
   }
   document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
   document.querySelector("[data-goto=pinterest]").onclick = (e) => { e.preventDefault(); showTab("pinterest"); window.scrollTo(0, 0); };
 
-  let pinLoaded = false;
-  function loadPinterest() {
-    if (pinLoaded) return;
-    pinLoaded = true;
+  let widgetLoaded = false;
+  function loadBoardWidget() {
+    if (widgetLoaded) return;
+    widgetLoaded = true;
     const box = $("#pin-board");
     const w = Math.min(box.clientWidth || 900, 1200);
     const cols = w < 500 ? 2 : w < 800 ? 3 : 5;
-    box.innerHTML = `<a data-pin-do="embedBoard" data-pin-board-width="${w}" data-pin-scale-height="${Math.round(window.innerHeight * 0.75)}" data-pin-scale-width="${Math.floor(w / cols) - 10}" href="https://www.pinterest.com/guerra9788/memes/">Cargando tablero…</a>`;
+    box.innerHTML = `<a data-pin-do="embedBoard" data-pin-board-width="${w}" data-pin-scale-height="${Math.round(window.innerHeight * 0.75)}" data-pin-scale-width="${Math.floor(w / cols) - 10}" href="https://www.pinterest.com/${BOARD}/">Cargando tablero…</a>`;
     const s = document.createElement("script");
     s.async = true;
     s.src = "https://assets.pinterest.com/js/pinit.js";
     document.body.appendChild(s);
   }
 
+  // Los 50 pines más recientes del tablero, en vivo (endpoint público del widget oficial).
+  // Los que no están en data/pinterest.json aparecen como "NUEVO" hasta que se etiqueten.
+  async function liveNewPins(knownIds) {
+    try {
+      const r = await fetch(`https://widgets.pinterest.com/v3/pidgets/boards/${BOARD}/pins/`);
+      const j = await r.json();
+      return (j.data?.pins || []).filter((p) => !knownIds.has(p.id)).map((p) => {
+        const img = (p.images?.["564x"]?.url || p.images?.["237x"]?.url || "").replace(/^https:\/\/i\.pinimg\.com\/[^/]+\//, "");
+        const words = MemeSearch.norm(p.description || "").split(" ").filter((w) => w.length > 2);
+        return fromPin({ id: p.id, img, video: p.is_video, cat: "Nuevos sin etiquetar",
+          title: (p.description || "").trim() || "Pin nuevo sin etiquetar", tags: ["nuevo", ...words] }, true);
+      }).filter((m) => m.thumbUrl.endsWith(".jpg") || m.thumbUrl.endsWith(".png") || m.thumbUrl.endsWith(".gif"));
+    } catch {
+      return [];
+    }
+  }
+
   // ---------- inicio ----------
-  fetch("data/memes.json").then((r) => r.json()).then((data) => {
-    memes = data;
-    MemeSearch.prepare(memes);
-    $("#count").textContent = `${memes.length} memes`;
+  Promise.all([
+    fetch("data/memes.json").then((r) => r.json()),
+    fetch("data/pinterest.json").then((r) => r.json()).catch(() => ({ pins: [], skip: [] })),
+  ]).then(async ([mine, board]) => {
+    items = [...mine.map(fromLocal), ...board.pins.map((p) => fromPin(p))];
+    MemeSearch.prepare(items);
+    $("#count").textContent = `${mine.length} tuyos · ${board.pins.length} de Pinterest`;
     const p = new URLSearchParams(location.search);
     if (p.get("q")) $("#q").value = p.get("q");
     if (CATS.includes(p.get("cat"))) cat = p.get("cat");
+    if (["local", "pin"].includes(p.get("src"))) $("#source").value = p.get("src");
     render();
+
+    const known = new Set([...board.pins.map((x) => x.id), ...(board.skip || [])]);
+    const fresh = await liveNewPins(known);
+    if (fresh.length) {
+      MemeSearch.prepare(fresh);
+      items = [...fresh, ...items];
+      $("#count").textContent += ` · ${fresh.length} nuevo${fresh.length === 1 ? "" : "s"}`;
+      render();
+    }
   });
 })();
