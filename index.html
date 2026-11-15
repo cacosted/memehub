@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memeteca</title>
+  <meta name="description" content="Mis memes favoritos para los videos, con buscador por situación.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23ef4444' stroke='%23111' stroke-width='8'/><rect x='4' y='46' width='92' height='8' fill='%23111'/><path d='M4 54a46 46 0 0 0 92 0z' fill='%23fff'/><circle cx='50' cy='50' r='14' fill='%23fff' stroke='%23111' stroke-width='8'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <div class="brand">
+        <h1>Memeteca</h1>
+        <p class="count" id="count"></p>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="coleccion">Mi colección</button>
+        <button role="tab" aria-selected="false" data-tab="pinterest">Tablero de Pinterest</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="coleccion" class="panel">
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" spellcheck="false"
+               placeholder="Describe la situación: “perdí por mala suerte”, “esperando”, “plan malvado”…"
+               aria-label="Buscar memes">
+        <kbd>/</kbd>
+      </div>
+
+      <div class="moods" id="moods" aria-label="Situaciones rápidas"></div>
+
+      <div class="filters">
+        <div class="chips" id="cats" aria-label="Categorías"></div>
+        <select id="sort" aria-label="Orden">
+          <option value="rel">Más relevantes</option>
+          <option value="uses">Más usados</option>
+          <option value="az">A–Z</option>
+        </select>
+      </div>
+
+      <p class="status" id="status" aria-live="polite"></p>
+      <div class="grid" id="grid"></div>
+
+      <aside class="fallback" id="fallback">
+        <p>¿No está el que buscas? <span id="fbq"></span></p>
+        <div class="ext">
+          <a id="fb-pin" target="_blank" rel="noopener">Pinterest</a>
+          <a id="fb-google" target="_blank" rel="noopener">Google Imágenes</a>
+          <a id="fb-tenor" target="_blank" rel="noopener">Tenor (GIFs)</a>
+          <a href="#" data-goto="pinterest">Mi tablero</a>
+        </div>
+      </aside>
+    </section>
+
+    <section id="pinterest" class="panel" hidden>
+      <div class="pin-head">
+        <p>Tu tablero <strong>guerra9788 / memes</strong>, cargado en vivo desde Pinterest: lo que agregues o quites allá aparece aquí.</p>
+        <a class="btn" href="https://co.pinterest.com/guerra9788/memes/" target="_blank" rel="noopener">Abrir en Pinterest</a>
+      </div>
+      <div id="pin-board" class="pin-board"></div>
+      <p class="hint">Si no se ve, puede que un bloqueador de anuncios esté frenando a Pinterest.</p>
+    </section>
+  </main>
+
+  <dialog id="viewer">
+    <div class="viewer">
+      <button class="x" id="v-close" aria-label="Cerrar">×</button>
+      <button class="nav prev" id="v-prev" aria-label="Anterior">‹</button>
+      <button class="nav next" id="v-next" aria-label="Siguiente">›</button>
+      <div class="v-media" id="v-media"></div>
+      <div class="v-info">
+        <p class="v-cat" id="v-cat"></p>
+        <h2 id="v-title"></h2>
+        <p id="v-desc"></p>
+        <div class="v-tags" id="v-tags"></div>
+        <div class="v-actions">
+          <button class="btn primary" id="v-copy">Copiar imagen</button>
+          <a class="btn" id="v-dl" download>Descargar</a>
+          <button class="btn" id="v-fav">☆ Favorito</button>
+        </div>
+        <p class="v-file" id="v-file"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="search.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
