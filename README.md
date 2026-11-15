@@ -1,4 +1,4 @@
-# Memeteca
+# Memehub
 
 Mis memes favoritos para los videos, con buscador por situación y mi tablero de Pinterest en vivo.
 
@@ -22,7 +22,7 @@ node tools/build.mjs
 git add -A && git commit -m "Nuevo meme" && git push
 ```
 
-Para mejorar las etiquetas, edita su entrada en `data/memes.json` (o pídele a Claude: "etiqueta los memes nuevos de la Memeteca").
+Para mejorar las etiquetas, edita su entrada en `data/memes.json` (o pídele a Claude: "etiqueta los memes nuevos de Memehub").
 
 ## Quitar un meme
 

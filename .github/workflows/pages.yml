@@ -1,5 +1,5 @@
 # Cada push a main: crea miniaturas y entradas para memes nuevos y publica la página.
-name: Publicar Memeteca
+name: Publicar Memehub
 
 on:
   push:
