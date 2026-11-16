@@ -2,6 +2,8 @@
 
 Mis memes favoritos y mi tablero de Pinterest, con buscador por situación.
 
+En línea: https://cacosted.github.io/memehub/
+
 - `memes/` los archivos originales (copiados de `game-vids/images`).
 - `thumbs/` miniaturas de 400 px que usa la grilla (se generan solas).
 - `data/memes.json` el catálogo: título, categoría, descripción y etiquetas de cada meme. **El buscador solo usa esto.**
