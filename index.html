@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Memehub</title>
-  <meta name="description" content="Mis memes favoritos para los videos, con buscador por situación.">
+  <meta name="description" content="Mis memes y efectos de sonido para los videos, con buscador por situación.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23ef4444' stroke='%23111' stroke-width='8'/><rect x='4' y='46' width='92' height='8' fill='%23111'/><path d='M4 54a46 46 0 0 0 92 0z' fill='%23fff'/><circle cx='50' cy='50' r='14' fill='%23fff' stroke='%23111' stroke-width='8'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,7 @@
       </div>
       <nav class="tabs" role="tablist">
         <button role="tab" aria-selected="true" data-tab="coleccion">Mi colección</button>
+        <button role="tab" aria-selected="false" data-tab="sonidos">Sonidos</button>
         <button role="tab" aria-selected="false" data-tab="pinterest">Tablero en vivo</button>
       </nav>
     </div>
@@ -67,6 +68,48 @@
       </aside>
     </section>
 
+    <section id="sonidos" class="panel" hidden>
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="sq" type="search" autocomplete="off" spellcheck="false"
+               placeholder="Busca un efecto por situación: “golpe”, “sale mal”, “suspenso”, “aparece algo”…"
+               aria-label="Buscar sonidos">
+        <kbd>/</kbd>
+      </div>
+
+      <div class="moods" id="smoods" aria-label="Situaciones rápidas"></div>
+
+      <div class="filters">
+        <div class="chips" id="scats" aria-label="Categorías"></div>
+        <div class="selects">
+          <label class="vol" title="Volumen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg>
+            <input id="svol" type="range" min="0" max="100" aria-label="Volumen">
+          </label>
+          <select id="ssort" aria-label="Orden">
+            <option value="rel">Más relevantes</option>
+            <option value="uses">Más usados</option>
+            <option value="short">Más cortos</option>
+            <option value="az">A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="status" id="sstatus" aria-live="polite"></p>
+      <p class="hint keys">Clic para oír · <kbd>↓</kbd> <kbd>↑</kbd> siguiente/anterior · <kbd>Enter</kbd> oye el primero · clic en la onda para saltar · arrastra una tarjeta al Finder para bajarla</p>
+      <div class="sgrid" id="sgrid"></div>
+      <div id="smore" class="smore" hidden>Cargando más…</div>
+
+      <aside class="fallback" id="sfallback">
+        <p>¿No está el que buscas? <span id="sfbq"></span></p>
+        <div class="ext">
+          <a id="sfb-myinstants" target="_blank" rel="noopener">MyInstants</a>
+          <a id="sfb-pixabay" target="_blank" rel="noopener">Pixabay (libres)</a>
+          <a id="sfb-freesound" target="_blank" rel="noopener">Freesound</a>
+        </div>
+      </aside>
+    </section>
+
     <section id="pinterest" class="panel" hidden>
       <div class="pin-head">
         <p>Tu tablero <strong>guerra9788 / memes</strong>, cargado en vivo desde Pinterest: lo que agregues o quites allá aparece aquí.</p>
@@ -104,5 +147,6 @@
 
   <script src="search.js"></script>
   <script src="app.js"></script>
+  <script src="sonidos.js"></script>
 </body>
 </html>

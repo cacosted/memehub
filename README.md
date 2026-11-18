@@ -1,6 +1,6 @@
 # Memehub
 
-Mis memes favoritos y mi tablero de Pinterest, con buscador por situación.
+Mis memes favoritos, mi tablero de Pinterest y mis efectos de sonido, con buscador por situación.
 
 En línea: https://cacosted.github.io/memehub/
 
@@ -42,13 +42,33 @@ La búsqueda los mezcla con tus memes y los marca con una **P**.
   usa "Abrir en Pinterest" o "Ver imagen grande".
 - Si borras un pin del tablero, sigue apareciendo hasta la próxima actualización.
 
+## Sonidos (pestaña Sonidos)
+
+- `sonidos/` los efectos en mp3: los de `game-vids/sounds`, los gritos y jingles cortos de las carpetas `sounds/`
+  de cada video y el pack retro de Juhani Junkala (CC0, libre de derechos: salen con la marca **CC0**).
+  Se dejó fuera la música de fondo y los OST completos.
+- `data/sonidos.json` el catálogo: título, categoría, descripción, etiquetas, duración (`dur`) y forma de onda (`wave`).
+- `tools/build-sonidos.mjs` agrega los sonidos nuevos con etiquetas sacadas del nombre y calcula duración y onda.
+
+**Agregar:** sube el mp3 a `sonidos/` desde la web de GitHub (la Action hace el resto) o, desde la Mac:
+
+```bash
+cp ~/Downloads/nuevo-efecto.mp3 sonidos/
+node tools/build-sonidos.mjs
+git add -A && git commit -m "Nuevo sonido" && git push
+```
+
+Para que la búsqueda lo encuentre por situación, mejora sus etiquetas en `data/sonidos.json` (o pídele a Claude:
+"etiqueta los sonidos nuevos de Memehub"). En la página: clic para oír, ↓/↑ para ir oyendo, clic en la onda para saltar,
+↓ para descargar o arrastra la tarjeta al Finder (Chrome).
+
 ## Quitar un meme
 
 Borra el archivo de `memes/`, su miniatura de `thumbs/` y su entrada en `data/memes.json`.
 
 ## Favoritos y "más usados"
 
-Se guardan en el navegador (localStorage): cada navegador/dispositivo tiene los suyos.
+Los de memes y los de sonidos se guardan en el navegador (localStorage): cada navegador/dispositivo tiene los suyos.
 "Más usados" cuenta las veces que copias o descargas un meme.
 
 ## Probar en local

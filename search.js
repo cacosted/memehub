@@ -5,7 +5,7 @@
     (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
       .replace(/[^a-z0-9ñ\s]/g, " ").replace(/\s+/g, " ").trim();
 
-  const STOP = new Set(("a al algo alguien ante asi aun con contra cual cuando de del desde donde el ella ellos en entre era es esa ese eso esta estaba estan estar este esto estoy fue fui ha hace hacer hay he la las le les lo los me mi mis mas muy nada ni no_stop nos o otra otro para pero poco por porque pues que quien se ser si_stop sin sobre son su sus te ti tu tus un una uno unos unas y ya yo meme memes momento cuando situacion cosa algo gif imagen nada salio sale toca tengo tiene tienes alguno").split(" "));
+  const STOP = new Set(("a al algo alguien ante asi aun con contra cual cuando de del desde donde el ella ellos en entre era es esa ese eso esta estaba estan estar este esto estoy fue fui ha hace hacer hay he la las le les lo los me mi mis mas muy nada ni no_stop nos o otra otro para pero poco por porque pues que quien se ser si_stop sin sobre son su sus te ti tu tus un una uno unos unas y ya yo meme memes momento cuando situacion cosa algo gif imagen nada salio sale toca tengo tiene tienes alguno sonido sonidos efecto efectos sfx").split(" "));
 
   // Cada grupo: palabras que significan lo mismo para buscar un meme.
   const GROUPS = [
@@ -19,7 +19,7 @@
     "sospechoso, sospecha, sus, desconfiar, desconfio, raro, ceja, reojo",
     "dinero, plata, money, rico, millonario, gastar, gaste, gasto, gastos, comprar, compra, oferta, vender, pepita, billete, lana, pagar, deuda, tienda",
     "pobre, quebrado, sin dinero, acabo, no money, limosna, not stonks",
-    "robar, roban, robo, robaron, ladron, asalto, estafa, estafado, timo, scam",
+    "robar, roban, robando, robo, robaron, ladron, asalto, estafa, estafado, timo, scam",
     "esperar, espera, esperando, tarda, tardar, tardo, lento, mucho tiempo, paciencia, cuanto falta",
     "rapido, velocidad, veloz, speedrun, correr, corre, prisa, apurado",
     "suerte, azar, random, randomizer, dados, probabilidad, rng",
@@ -53,6 +53,31 @@
     "nuzlocke, hardcore, dificil, dificultad",
     "silencio, callado, incomodo, awkward",
     "asco, huele mal, apesta, cringe",
+    // sonidos
+    "golpe, golpear, golpazo, punetazo, pegar, pegarle, hit, impacto, madrazo, trancazo, choque",
+    "explosion, explotar, exploto, explota, boom, bomba, estallar, kaboom, tnt, nuke",
+    "error, incorrecto, mal, fallo, wrong, buzzer, equivocado, equivoque",
+    "correcto, acierto, acerte, ding, respuesta correcta",
+    "transicion, whoosh, swoosh, swipe, cambio de escena, pasar",
+    "aparecer, aparece, aparicion, pop, emergente, brillo, destello, shine",
+    "alarma, sirena, alerta, peligro, emergencia",
+    "grito, gritar, grita, rugido, rugir, cry, chillido",
+    "musica, cancion, tema, melodia, ost",
+    "disparo, disparar, laser, pistola, tiro, pew, rayo",
+    "moneda, monedas, coin, cha ching, caja registradora, dinero",
+    "pedo, pedos, fart, flatulencia",
+    "lluvia, llover, tormenta, trueno",
+    "correr, corriendo, huir, escapar, persecucion, rapido",
+    "caer, caida, cayendo, cae, se cayo",
+    "salto, saltar, brincar, jump, boing, resorte",
+    "telefono, celular, llamada, notificacion, mensaje",
+    "suspenso, misterio, tension, dramatico, dun dun, intriga, revelar, redoble",
+    "epico, epica, epic, intenso, legendario",
+    "evolucion, evolucionar, evoluciona, evoluciono, mega, megaevolucion",
+    "curar, sanar, pocion, centro pokemon, recuperar, restaurar",
+    "ganar, victoria, fanfarria, medalla, nivel completado, logro",
+    "hola, saludo, hello, llegar, llega, entrada",
+    "lucha libre, wwe, luchador, ring",
   ].map((g) => g.split(",").map((w) => w.trim()));
 
   // índice: palabra -> conjunto de palabras del mismo grupo

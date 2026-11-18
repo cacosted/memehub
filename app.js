@@ -100,7 +100,7 @@
     if (q) params.set("q", q);
     if (cat !== "Todos") params.set("cat", cat);
     if (source !== "all") params.set("src", source);
-    history.replaceState(null, "", params.toString() ? `?${params}` : location.pathname);
+    if (!$("#coleccion").hidden) history.replaceState(null, "", params.toString() ? `?${params}` : location.pathname);
   }
 
   // ---------- acciones ----------
@@ -232,15 +232,20 @@
       if (e.key === "ArrowLeft") step(-1);
       return;
     }
-    if (e.key === "/" && document.activeElement !== $("#q")) { e.preventDefault(); $("#q").focus(); $("#q").select(); }
+    const box = $("#sonidos").hidden ? $("#q") : $("#sq");
+    if (e.key === "/" && document.activeElement !== box) { e.preventDefault(); box.focus(); box.select(); }
   });
 
   // ---------- pestañas + tablero embebido ----------
-  function showTab(name) {
+  let countText = "";
+  function showTab(name, params) {
     document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === name));
-    $("#coleccion").hidden = name !== "coleccion";
-    $("#pinterest").hidden = name !== "pinterest";
-    if (name === "pinterest") loadBoardWidget();
+    document.querySelectorAll(".panel").forEach((p) => (p.hidden = p.id !== name));
+    if (name !== "sonidos" && window.Sonidos) Sonidos.hide();
+    if (name === "pinterest") { loadBoardWidget(); history.replaceState(null, "", "?tab=pinterest"); }
+    if (name === "coleccion") render();
+    $("#count").textContent = countText;
+    if (name === "sonidos") Sonidos.show(params).then((n) => { $("#count").textContent = `${n} sonidos`; });
   }
   document.querySelectorAll(".tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.tab)));
   document.querySelector("[data-goto=pinterest]").onclick = (e) => { e.preventDefault(); showTab("pinterest"); window.scrollTo(0, 0); };
@@ -283,19 +288,25 @@
   ]).then(async ([mine, board]) => {
     items = [...mine.map(fromLocal), ...board.pins.map((p) => fromPin(p))];
     MemeSearch.prepare(items);
-    $("#count").textContent = `${mine.length} tuyos · ${board.pins.length} de Pinterest`;
+    countText = `${mine.length} tuyos · ${board.pins.length} de Pinterest`;
+    $("#count").textContent = countText;
     const p = new URLSearchParams(location.search);
-    if (p.get("q")) $("#q").value = p.get("q");
-    if (CATS.includes(p.get("cat"))) cat = p.get("cat");
-    if (["local", "pin"].includes(p.get("src"))) $("#source").value = p.get("src");
-    render();
+    const tab = p.get("tab");
+    if (tab === "sonidos" || tab === "pinterest") showTab(tab, p);
+    else {
+      if (p.get("q")) $("#q").value = p.get("q");
+      if (CATS.includes(p.get("cat"))) cat = p.get("cat");
+      if (["local", "pin"].includes(p.get("src"))) $("#source").value = p.get("src");
+      render();
+    }
 
     const known = new Set([...board.pins.map((x) => x.id), ...(board.skip || [])]);
     const fresh = await liveNewPins(known);
     if (fresh.length) {
       MemeSearch.prepare(fresh);
       items = [...fresh, ...items];
-      $("#count").textContent += ` · ${fresh.length} nuevo${fresh.length === 1 ? "" : "s"}`;
+      countText += ` · ${fresh.length} nuevo${fresh.length === 1 ? "" : "s"}`;
+      if (!$("#coleccion").hidden) $("#count").textContent = countText;
       render();
     }
   });

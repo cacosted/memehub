@@ -1,4 +1,4 @@
-# Cada push a main: crea miniaturas y entradas para memes nuevos y publica la página.
+# Cada push a main: crea miniaturas y entradas para memes y sonidos nuevos y publica la página.
 name: Publicar Memehub
 
 on:
@@ -34,13 +34,16 @@ jobs:
       - name: Miniaturas y catálogo de memes nuevos
         run: node tools/build.mjs
 
+      - name: Catálogo de sonidos nuevos
+        run: node tools/build-sonidos.mjs
+
       - name: Guardar lo generado en el repo
         run: |
           if [ -n "$(git status --porcelain thumbs data)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add thumbs data
-            git commit -m "Miniaturas y catálogo de memes nuevos"
+            git commit -m "Miniaturas y catálogo de memes y sonidos nuevos"
             git push
           fi
 
