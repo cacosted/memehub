@@ -46,6 +46,18 @@ bash mac/build-app.sh --instalar
 
 La primera vez, macOS pide permiso para que lea Documentos: dale *Permitir*.
 
+**En otra Mac** (la app no se copia sola: lee los memes de esta carpeta, así que cada Mac necesita su copia del repo):
+
+```bash
+xcode-select --install
+git clone https://github.com/cacosted/memehub.git ~/Documents/game-vids/memes-web
+bash ~/Documents/game-vids/memes-web/mac/build-app.sh --instalar
+```
+
+El primer comando instala el compilador de Apple (si ya está, avisa y no hace nada). Para traer memes y pines nuevos
+después: `git -C ~/Documents/game-vids/memes-web pull` (no hace falta recompilar). Los pines bajados (`descargados/`)
+son de cada Mac.
+
 ## Tablero de Pinterest (guerra9788/memes)
 
 `data/pinterest.json` tiene los pines del tablero ya etiquetados (`pins`) y los que se descartaron por
