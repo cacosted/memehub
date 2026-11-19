@@ -50,7 +50,7 @@
   function card(s, i) {
     const free = s.cat === "Retro (Junkala)";
     return `
-      <article class="snd${isFav(s) ? " fav" : ""}${i === playing ? " on" : ""}" data-i="${i}" draggable="true">
+      <article class="snd${isFav(s) ? " fav" : ""}${i === playing ? " on" : ""}" data-i="${i}"${APP ? "" : ' draggable="true"'}>
         <button class="play" data-act="play" data-i="${i}" aria-label="Reproducir ${esc(s.title)}"></button>
         <div class="meta">
           <h3 title="${esc(s.desc)}">${esc(s.title)}</h3>
@@ -58,7 +58,7 @@
         </div>
         <span class="sacts">
           <button class="star" data-act="fav" data-i="${i}" title="Favorito" aria-label="Favorito">${isFav(s) ? "★" : "☆"}</button>
-          <a href="${url(s)}" download="${esc(s.file)}" data-act="dl" data-i="${i}" title="Descargar" aria-label="Descargar">↓</a>
+          <a href="${url(s)}" download="${esc(s.file)}" data-act="dl" data-i="${i}" title="${window.memehubApp ? "Mostrar en Finder" : "Descargar"}" aria-label="${window.memehubApp ? "Mostrar en Finder" : "Descargar"}">${window.memehubApp ? "⌕" : "↓"}</a>
         </span>
         <div class="wave" data-act="seek" data-i="${i}">${waveSvg(s)}${waveSvg(s, "played")}</div>
       </article>`;
@@ -169,7 +169,10 @@
       store.set("sfavs", [...favs]);
       el.classList.toggle("fav", isFav(s));
       a.textContent = isFav(s) ? "★" : "☆";
-    } else if (act === "dl") used(s);
+    } else if (act === "dl") {
+      used(s);
+      if (APP) { e.preventDefault(); APP.reveal("sonidos/" + s.file); }
+    }
     else if (act === "seek") {
       const r = a.getBoundingClientRect();
       play(i, Math.min(0.98, Math.max(0, (e.clientX - r.left) / r.width)));
@@ -177,6 +180,16 @@
   });
 
   // Arrastrar una tarjeta al Finder/escritorio (Chrome) baja el archivo.
+  // En Memehub.app el arrastre es del archivo de verdad: sirve para soltarlo en Resolve.
+  const APP = window.memehubApp || null;
+  if (APP) $("#sonidos .hint.keys").innerHTML = $("#sonidos .hint.keys").innerHTML.replace("arrastra una tarjeta al Finder para bajarla", "arrastra una tarjeta a Resolve o al Finder");
+  $("#sgrid").addEventListener("mousedown", (e) => {
+    if (!APP || e.button !== 0 || e.target.closest(".sacts")) return;
+    const el = e.target.closest(".snd");
+    if (!el) return;
+    const s = view[+el.dataset.i];
+    APP.arm("sonidos/" + s.file, "", { started: () => used(s) });
+  });
   $("#sgrid").addEventListener("dragstart", (e) => {
     const el = e.target.closest(".snd");
     if (!el) return;

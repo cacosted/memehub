@@ -131,6 +131,15 @@ select {
 .card { position: relative; }
 .badge.pin { left: auto; right: 8px; top: auto; bottom: 8px; background: #e60023; color: #fff; }
 .badge.pin.new { background: var(--gold); color: #1b1a17; }
+.badge.pin.disk { background: #15803d; }
+
+/* Memehub.app (Mac): arrastre nativo */
+.app-only { display: none; }
+html.app .app-only { display: block; margin: -4px 0 12px; }
+/* En la app el arrastre lo hace macOS: WebKit no debe arrastrar imágenes ni seleccionar texto al arrastrar. */
+html.app img, html.app a, html.app .card, html.app .snd { -webkit-user-drag: none; }
+html.app .card, html.app .snd, html.app .v-media { -webkit-user-select: none; user-select: none; }
+html.app .card .open, html.app .v-media img { cursor: grab; }
 .card:has(.badge:not(.pin)) .badge.pin { bottom: 8px; }
 .selects { display: flex; gap: 8px; }
 [hidden] { display: none !important; }

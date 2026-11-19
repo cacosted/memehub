@@ -26,6 +26,26 @@ git add -A && git commit -m "Nuevo meme" && git push
 
 Para mejorar las etiquetas, edita su entrada en `data/memes.json` (o pídele a Claude: "etiqueta los memes nuevos de Memehub").
 
+## App de Mac (arrastrar a Resolve)
+
+`Memehub.app` (en `~/Applications`) es la misma página en una ventana propia, con una diferencia: lo que arrastras
+sale como un archivo de verdad, igual que desde el Finder. Lo puedes soltar en el Media Pool o en el timeline de Resolve,
+en el Finder o en Photopea. Sirve para los memes y para la pestaña Sonidos.
+
+- Lee todo directo de esta carpeta: los memes nuevos aparecen sin recompilar.
+- Los pines de Pinterest (**P**) no están en el disco: se bajan a `descargados/` con **↓** o al arrastrarlos
+  (la imagen original; queda marcado con ✓). `descargados/` no se sube a git.
+- En la app, ⧉ copia el archivo y la imagen, y el icono de carpeta lo muestra en el Finder.
+  *Ventana > Mantener encima* (⌥⌘T) la deja flotando sobre Resolve.
+
+Para compilarla e instalarla (después de cambiar `mac/` o si mueves esta carpeta):
+
+```bash
+bash mac/build-app.sh --instalar
+```
+
+La primera vez, macOS pide permiso para que lea Documentos: dale *Permitir*.
+
 ## Tablero de Pinterest (guerra9788/memes)
 
 `data/pinterest.json` tiene los pines del tablero ya etiquetados (`pins`) y los que se descartaron por

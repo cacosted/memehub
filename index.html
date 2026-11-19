@@ -55,6 +55,7 @@
       </div>
 
       <p class="status" id="status" aria-live="polite"></p>
+      <p class="hint app-only">Arrastra cualquier meme a Resolve o al Finder. Los de Pinterest (<strong>P</strong>) se bajan al disco al arrastrarlos o con <strong>↓</strong>, y quedan marcados con ✓.</p>
       <div class="grid" id="grid"></div>
 
       <aside class="fallback" id="fallback">
@@ -134,6 +135,8 @@
         <div class="v-actions">
           <button class="btn primary" id="v-copy">Copiar imagen</button>
           <a class="btn" id="v-dl" download>Descargar</a>
+          <button class="btn primary" id="v-get" hidden>Bajar al disco</button>
+          <button class="btn" id="v-finder" hidden>Mostrar en Finder</button>
           <a class="btn primary" id="v-pin" target="_blank" rel="noopener" hidden>Abrir en Pinterest</a>
           <a class="btn" id="v-img" target="_blank" rel="noopener" referrerpolicy="no-referrer" hidden>Ver imagen grande</a>
           <button class="btn" id="v-fav">☆ Favorito</button>
